@@ -1,0 +1,31 @@
+name: Daily Task
+
+on:
+  schedule:
+    - cron: '0 10 * * *'  # 7 AM UTC-3 = 10 AM UTC
+  workflow_dispatc:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      # 2. Setup Python using the version in your pyproject.toml
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+
+      # 3. Install dependencies from your lockfile
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      
+      - name: Run script
+        env:
+          LOGIN_USERNAME: ${{ secrets.LOGIN_USERNAME }}
+          LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
+        run: uv run python src/emp.py
