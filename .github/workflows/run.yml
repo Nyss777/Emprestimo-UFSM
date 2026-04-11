@@ -27,5 +27,5 @@ jobs:
       - name: Run script
         env:
           MATRICULA_LOGIN_UFSM: ${{ secrets.MATRICULA_LOGIN_UFSM }}
-          MATRICULA_LOGIN_UFSM: ${{ secrets.SENHA_LOGIN_UFSM }}
+          SENHA_LOGIN_UFSM: ${{ secrets.SENHA_LOGIN_UFSM }}
         run: uv run python src/emp.py
