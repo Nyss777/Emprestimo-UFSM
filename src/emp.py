@@ -4,7 +4,6 @@ from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
-from bs4.element import Tag
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -91,17 +90,29 @@ def main():
         logging.error("Tabela não encontrada!")
         return
 
-    if not isinstance(emp_sec, Tag):
-        logging.error("Elemento encontrado não é um objeto válido!")
-        return
-
     bks = emp_sec.find_all("tr")
     renovado = False
 
     for bk in bks[1:]:
-        emprestimo_id = bk.find('button').get('data-id')
+        button = bk.find('button')
+        if button is None:
+            logging.error("Elemento não encontrado, tentando continuar...")
+            continue
+
+        emprestimo_id = button.get('data-id')
+        if emprestimo_id is None:
+            logging.error("ID não encontrado, tentando continuar...")
+            continue
+
         date = bk.find_all("td")[5].get_text(strip=True)
         title = bk.find_all("td")[2].get_text(strip=True)
+
+        try: 
+            emprestimo_id = str(emprestimo_id)
+        except ValueError:
+            logging.error("ID não é do tipo esperado!")
+            continue
+
         if verificação_data(date):
             renovar(emprestimo_id, title, session=session)
             renovado = True
