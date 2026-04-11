@@ -3,7 +3,7 @@ name: Daily Task
 on:
   schedule:
     - cron: '0 10 * * *'  # 7 AM UTC-3 = 10 AM UTC
-  workflow_dispatc:
+  workflow_dispatch:
 
 jobs:
   run-script:
