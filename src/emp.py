@@ -1,3 +1,4 @@
+import html
 import logging
 import os
 from datetime import datetime
@@ -59,7 +60,7 @@ def main():
     session = requests.Session()
 
     try:
-        session.post(
+        r = session.post(
             BASE_URL+"estudantil/j_security_check",
             headers=HEADERS | SECURITY_HEADERS,
             data=login_credentials,
@@ -67,8 +68,16 @@ def main():
             timeout=25
         )
 
+        r.raise_for_status()
+
         if "JSESSIONIDSSO" not in session.cookies:
-            logging.warning("Matrícula ou senhas incorretas.")
+
+            if "Manutenção" in html.unescape(r.text):
+                logging.error("Site em manutenção, tente em outro momento")
+
+            else: 
+                logging.error("Matrícula ou senhas incorretas.")
+
             return
 
         r = session.get(
@@ -96,12 +105,12 @@ def main():
     for bk in bks[1:]:
         button = bk.find('button')
         if button is None:
-            logging.error("Elemento não encontrado, tentando continuar...")
+            logging.critical("Elemento não encontrado, tentando continuar...")
             continue
 
         emprestimo_id = button.get('data-id')
         if emprestimo_id is None:
-            logging.error("ID não encontrado, tentando continuar...")
+            logging.critical("ID não encontrado, tentando continuar...")
             continue
 
         date = bk.find_all("td")[5].get_text(strip=True)
